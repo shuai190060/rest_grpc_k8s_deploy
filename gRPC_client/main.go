@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
+	"net/http"
 	"time"
 
 	pb "shuai190060/rest_grpc_k8s_deploy/gRPC_client/account_proto"
@@ -20,7 +24,9 @@ func init() {
 func main() {
 
 	// // client service to write to postgresql
-	startGRPCClientService()
+	// startGRPCClientService()
+
+	REST_api()
 
 }
 
@@ -81,4 +87,35 @@ func startGRPCClientService() {
 	log.Print("\nuser list is:\n")
 	fmt.Printf("r.GetAccount():%v", res_acc_list)
 
+}
+
+type Account struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
+func REST_api() {
+	for i := 1; i <= 10; i++ {
+		account := Account{
+			FirstName: fmt.Sprintf("First_name_%d", rand.Intn(10000)),
+			LastName:  fmt.Sprintf("Last_name_%d", rand.Intn(10000)),
+		}
+
+		body, err := json.Marshal(account)
+		if err != nil {
+			log.Fatalf("Error marshaling account: %v", err)
+		}
+
+		create_address := "http://a6e66a42ba87a48c196c1742042dd4d9-f96108f28e54c2db.elb.us-east-1.amazonaws.com:3000/account"
+
+		resp, err := http.Post(create_address, "application/json", bytes.NewBuffer(body))
+		if err != nil {
+			log.Fatalf("Error sending POST request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		respBody, _ := io.ReadAll(resp.Body)
+		log.Println(string(respBody))
+
+	}
 }
