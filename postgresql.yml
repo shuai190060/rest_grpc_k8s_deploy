@@ -1,20 +1,45 @@
 - name: provision postgresql deployment in k8s
   hosts: localhost
   gather_facts: no
+  vars:
+    posgres: false
+    trigger_replace: false
+
   tasks:
-  - name: install nginx ingress controller 
-    shell: |
-      helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-        --version 4.4.2 \
-        --namespace ingress \
-        --create-namespace \
-        -f ./ingress/nginx_values.yaml
-  - name: create namespace backend
-    shell: kubectl create ns backend
-  - name: deploy secret 
-    shell: kubectl apply -f secret.yaml 
-  - name: deploy posgresql 
-    shell: kubectl apply -f postgres
+  - name: provision postgresql deployment in k8s
+    when: posgres
+    block:
+    - name: install nginx ingress controller 
+      shell: |
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+          --version 4.4.2 \
+          --namespace ingress \
+          --create-namespace \
+          -f ./ingress/nginx_values.yaml
+    - name: create namespace backend
+      shell: kubectl create ns backend
+    - name: deploy secret 
+      shell: kubectl apply -f secret.yaml 
+    - name: deploy posgresql 
+      shell: kubectl apply -f postgres
+
+  - name: populate the rRPC client file
+    when: trigger_replace
+    block:
+    - name: get the nlb link
+      shell: kubectl get svc/go-app-service  -n app -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: nlb_link_gRPC
+      changed_when: false
+    - name: Replace placeholder in file with NLB link
+      template:
+        src: ./gRPC_client/main.go.j2
+        dest: ./gRPC_client/main.go
+        mode: '0644'
+      vars:
+        nlb_link: "{{ nlb_link_gRPC.stdout }}"
+
+
+      
 
   
   

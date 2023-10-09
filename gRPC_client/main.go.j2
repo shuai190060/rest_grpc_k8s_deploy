@@ -1,0 +1,66 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"math/rand"
+	"time"
+
+	pb "shuai190060/rest_grpc_k8s_deploy/gRPC_client/account_proto"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+func init() {
+	rand.New(rand.NewSource(1000000))
+}
+
+func main() {
+
+	// // client service to write to postgresql
+	startGRPCClientService()
+
+}
+
+const (
+	address = "{{ nlb_link }}:50051"
+)
+
+func startGRPCClientService() {
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	// create new client with this connection
+	c := pb.NewAccountManagementClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	first_name := "bob"
+	last_name := "jack"
+	r, err := c.CreateAccount(ctx, &pb.NewAccount{
+		FirstName: first_name,
+		LastName:  last_name,
+	})
+	if err != nil {
+		log.Fatalf("could not create new account:%v", err)
+	}
+	log.Printf(`Account details:
+	First_name: %s
+	Last_name: %s
+	Number: %d
+	`, r.GetFirstName(), r.GetLastName(), r.GetNumber())
+
+	params := &pb.GetAccountParams{}
+	res_acc_list, err := c.GetAccount(ctx, params)
+	if err != nil {
+		log.Fatalf("could not retrieve accounts: %v", err)
+	}
+	log.Print("\nuser list is:\n")
+	fmt.Printf("r.GetAccount():%v", res_acc_list)
+
+}
