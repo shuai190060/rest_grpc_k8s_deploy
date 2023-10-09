@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-app
+  template:
+    metadata:
+      labels:
+        app: go-app
+    spec:
+      containers:
+      - name: go-grpc
+        image: darwimroy1900/rest_vs_grpc:latest
+        ports:
+        - containerPort: 3000
+        - containerPort: 50051
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: go-app-config
+              key: DB_HOST
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: go-app-config
+              key: DB_NAME
+        - name: DB_SSLMODE
+          valueFrom:
+            configMapKeyRef:
+              name: go-app-config
+              key: DB_SSLMODE
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: go-app-secret
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pg-password
+              key: POSTGRES_PASSWORD
+
+
+
+

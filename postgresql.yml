@@ -9,4 +9,12 @@
         --namespace ingress \
         --create-namespace \
         -f ./ingress/nginx_values.yaml
+  - name: create namespace backend
+    shell: kubectl create ns backend
+  - name: deploy secret 
+    shell: kubectl apply -f secret.yaml 
+  - name: deploy posgresql 
+    shell: kubectl apply -f postgres
+
+  
   
