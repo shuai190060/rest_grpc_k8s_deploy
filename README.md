@@ -55,5 +55,9 @@ cd gRPC_client && make run
 
 Prometheus endpoint for metrics:
 
-- Rest api latency: <server_endpoint:3000/metrics>
-- rRPC createAccount latency: <server_endpoint:50051/metrics>
+- Rest api latency: http://<server_endpoint:3000/metrics>
+- rRPC createAccount latency: http://<server_endpoint:9092/metrics>
+
+
+
+Metrics visualisation
