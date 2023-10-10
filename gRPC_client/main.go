@@ -31,7 +31,7 @@ func main() {
 }
 
 const (
-	address = "a6e66a42ba87a48c196c1742042dd4d9-f96108f28e54c2db.elb.us-east-1.amazonaws.com:50051"
+	address = "a43f8d28bbef84bf7afd781cef4df17b-ccce9392309cd12b.elb.us-east-1.amazonaws.com:50051"
 )
 
 func startGRPCClientService() {
@@ -106,7 +106,7 @@ func REST_api() {
 			log.Fatalf("Error marshaling account: %v", err)
 		}
 
-		create_address := "http://a6e66a42ba87a48c196c1742042dd4d9-f96108f28e54c2db.elb.us-east-1.amazonaws.com:3000/account"
+		create_address := "http://a43f8d28bbef84bf7afd781cef4df17b-ccce9392309cd12b.elb.us-east-1.amazonaws.com:3000/account"
 
 		resp, err := http.Post(create_address, "application/json", bytes.NewBuffer(body))
 		if err != nil {
