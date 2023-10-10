@@ -3,6 +3,7 @@
   gather_facts: no
   vars:
     posgres: false
+    server: false
     trigger_replace: false
 
   tasks:
@@ -22,6 +23,15 @@
       shell: kubectl apply -f secret.yaml 
     - name: deploy posgresql 
       shell: kubectl apply -f postgres
+
+  - name: deploy REST api server and gRPC server
+    when: server
+    block:
+    - name: create app namespace
+      shell: kubectl create ns app 
+    - name: deploy the yaml file
+      shell: kubectl apply -f rest_grpc_app/
+
 
   - name: populate the rRPC client file
     when: trigger_replace
