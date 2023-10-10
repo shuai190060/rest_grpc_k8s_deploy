@@ -37,7 +37,7 @@ remark: need secret to mount as password for posgresql
     ```jsx
     ansible-playbook postgresql.yml -e "server=true"
     ```
-    
+Remark: username and password for app deployment is needed.
 - render the network load balancer link for gRPC client
     
     ```jsx

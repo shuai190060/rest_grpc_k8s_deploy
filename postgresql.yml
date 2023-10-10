@@ -29,6 +29,8 @@
     block:
     - name: create app namespace
       shell: kubectl create ns app 
+    - name: deploy the secret for username and password 
+      shell: kubectl apply -f username-secret.yaml
     - name: deploy the yaml file
       shell: kubectl apply -f rest_grpc_app/
 
