@@ -1,0 +1,20 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: go-app-service-monitor
+  namespace: app
+  labels:
+    prometheus: watched
+spec:
+  selector:
+    matchLabels:
+      app: go-app  
+  namespaceSelector:
+    matchNames:
+    - app
+  endpoints:
+  - port: http
+    path: /metrics
+  - port: grpc-metrics
+    path: /metrics

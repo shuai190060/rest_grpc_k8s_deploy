@@ -1,0 +1,21 @@
+---
+defaultRules:
+  rules:
+    etcd: false
+    kubeScheduler: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+prometheus:
+  prometheusSpec:
+    # additionalScrapeConfigs: {}
+    serviceMonitorSelector:
+      matchLabels:
+        prometheus: watched
+commonLabels:
+  prometheus: watched
+grafana:
+  adminPassword: "123456"
