@@ -5,6 +5,7 @@
     posgres: false
     server: false
     trigger_replace: false
+    prometheus: false
 
   tasks:
   - name: provision postgresql deployment in k8s
@@ -17,8 +18,8 @@
           --namespace ingress \
           --create-namespace \
           -f ./ingress/nginx_values.yaml
-    - name: create namespace backend
-      shell: kubectl create ns backend
+    - name: create namespace backend and app 
+      shell: kubectl apply -f prometheus/watched_ns/
     - name: deploy secret 
       shell: kubectl apply -f secret.yaml 
     - name: deploy posgresql 
@@ -27,8 +28,6 @@
   - name: deploy REST api server and gRPC server
     when: server
     block:
-    - name: create app namespace
-      shell: kubectl create ns app 
     - name: deploy the secret for username and password 
       shell: kubectl apply -f username-secret.yaml
     - name: deploy the yaml file
@@ -49,6 +48,21 @@
         mode: '0644'
       vars:
         nlb_link: "{{ nlb_link_gRPC.stdout }}"
+  
+  - name: provision kube-prometheus-stack
+    when: prometheus
+    block:
+    - name: create monitoring namespace
+      shell: kubectl create ns monitoring 
+    - name: helm install kube-prometheus-stack
+      # shell: helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring --version v0.67.1 -f ./prometheus/kube-prometheus-stack-values.yaml --version=v0.67.1 
+      shell: helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+              --version 45.31.0 \
+              --namespace monitoring \
+              --create-namespace \
+              -f ./prometheus/custom_values.yaml
+    
+      
 
 
       

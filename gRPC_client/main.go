@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -23,15 +24,29 @@ func init() {
 
 func main() {
 
-	// // client service to write to postgresql
-	// startGRPCClientService()
+	grpcFlag := flag.Bool("g", false, "Run gRPC client service")
+	restFlag := flag.Bool("r", false, "Run REST API")
+	flag.Parse()
 
-	REST_api()
+	if *grpcFlag {
+		log.Println("Starting gRPC client service...")
+		startGRPCClientService()
+	}
+
+	if *restFlag {
+		log.Println("Starting REST API...")
+		REST_api()
+	}
+
+	// Error when no flag is provided
+	if !(*grpcFlag || *restFlag) {
+		log.Fatal("Please specify either -g to run gRPC client service or -r to run REST API")
+	}
 
 }
 
 const (
-	address = "a43f8d28bbef84bf7afd781cef4df17b-ccce9392309cd12b.elb.us-east-1.amazonaws.com:50051"
+	address = "a987bf8d3b2d74610abbce5a5fec9c67-df99937c4e3a2ffe.elb.us-east-1.amazonaws.com:50051"
 )
 
 func startGRPCClientService() {
@@ -106,7 +121,8 @@ func REST_api() {
 			log.Fatalf("Error marshaling account: %v", err)
 		}
 
-		create_address := "http://a43f8d28bbef84bf7afd781cef4df17b-ccce9392309cd12b.elb.us-east-1.amazonaws.com:3000/account"
+		// create_address := "http://a987bf8d3b2d74610abbce5a5fec9c67-df99937c4e3a2ffe.elb.us-east-1.amazonaws.com:3000/account"
+		create_address := "http://127.0.0.1:3000/account"
 
 		resp, err := http.Post(create_address, "application/json", bytes.NewBuffer(body))
 		if err != nil {
